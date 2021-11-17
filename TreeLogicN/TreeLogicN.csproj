@@ -3,6 +3,21 @@
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
 	<UseWindowsForms>true</UseWindowsForms>
+	<Description>Some functions to parse strings and convert them into graph like objects that can be represented with the TreeNode control</Description>
+	<Authors>Lorenzo G Alfaro</Authors>
+	<PackageTags>graphs TreeNode string-parsing</PackageTags>
+	<PackageReleaseNotes>My first nugget.</PackageReleaseNotes>
+	<RepositoryUrl>https://github.com/LorenzoAlfaro/TreeLogicN.git</RepositoryUrl>
+	<RepositoryType>Git</RepositoryType>
+	<Copyright>Copyright (c) 2021 Lorenzo G Alfaro</Copyright>
+	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
