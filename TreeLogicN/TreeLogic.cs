@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -42,18 +41,8 @@ namespace TreeLogicN
                 return a.Split(new string[] { c }, StringSplitOptions.None)[0];
             }
         }
-        public static List<string> ReturnInterfaceAlias(DeviceInterface a)
-        {
-            return a.paths;
-        }
-        public static List<string> ReturnInterfaceOLs(DeviceInterface a)
-        {
-            return a.paths;
-        }
-        public static List<string> ReturnRules(DeviceInterface a)
-        {
-            return a.paths;
-        }
+        
+        
     }
     public class Node //Base class of my tree structure
     {
@@ -216,7 +205,7 @@ namespace TreeLogicN
                 {
                     if (myPath.Silaba.Count == 0)
                     {
-                        myPath.Silaba.Add("RedudantRootObjectList"); //add a Special Node to detect redundant OL
+                        myPath.Silaba.Add("RedudantRootNode"); //add a Special Node to detect redundant OL
                     }
                 }
                 foreach (var myPath in colPaths)
@@ -407,7 +396,7 @@ namespace TreeLogicN
 
             if (Separator == '-')
             {
-                List<string> Aliases = AuxFunctions.ReturnInterfaceAlias(myInterface);
+                List<string> Aliases = myInterface.paths;
                 List<List<string>> myFamilies = PrePackager(Aliases, Separator, Separator2);
 
                 if (myFamilies.Count > 1)
@@ -426,8 +415,8 @@ namespace TreeLogicN
             }
             else if (Separator == '_')
             {
-                List<string> ObjectLists = AuxFunctions.ReturnInterfaceOLs(myInterface);
-                List<List<string>> myFamilies = PrePackager(ObjectLists, Separator, Separator2);
+                List<string> objList = myInterface.paths;
+                List<List<string>> myFamilies = PrePackager(objList, Separator, Separator2);
 
                 if (myFamilies.Count > 1)
                 {
@@ -439,12 +428,12 @@ namespace TreeLogicN
                 }
                 else
                 {
-                    FinalTree = LoadGenericTree(ObjectLists, "", Simplify, Separator, Separator2); //Comment
+                    FinalTree = LoadGenericTree(objList, "", Simplify, Separator, Separator2); //Comment
                 }
             }
             else if (Separator == '/')
             {
-                List<string> Rules = AuxFunctions.ReturnRules(myInterface);
+                List<string> Rules = myInterface.paths;
                 FinalTree = LoadGenericTree(Rules, "", Simplify, Separator, Separator2); //No need to add a Father Node
             }
             else
@@ -519,7 +508,7 @@ namespace TreeLogicN
             }
             else
             {
-                FinalTree.Text = "Interface with no OL";
+                FinalTree.Text = "Empty Interface";
             }
             return FinalTree;
         }
