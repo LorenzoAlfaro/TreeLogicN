@@ -44,11 +44,14 @@ namespace TreeLogicN
         
         
     }
-    public class Node //Base class of my tree structure
+    
+    /// <summary>
+    /// Base class for the tree structure
+    /// </summary>
+    public class Node 
     {
         public string Trunk;
         public List<Node> Branches;
-
         public Node()
         {
             Branches = new List<Node>();
@@ -71,9 +74,20 @@ namespace TreeLogicN
 
         public List<string> paths;
     }
+
+    // TODO use namespace instead of a static class
     public static class TreeLogic
     {
         #region Paths logic
+
+        /// <summary>
+        /// Function to check if a path to property in an object
+        /// returns the expected value. Used in the test automation of JSON APIs response
+        /// </summary>
+        /// <param name="paths"></param>
+        /// <param name="finalValue"></param>
+        /// <param name="apple"></param>
+        /// <returns></returns>
         public static bool checkPath(List<string> paths, string finalValue, dynamic apple)
         {
             if (paths.Count > 1)
@@ -165,6 +179,8 @@ namespace TreeLogicN
             }
             return myPaths;
         }
+        
+        // Why are there two versions of Packager?
         private static List<Path> Packager(List<Path> colPaths)
         {
             if (colPaths.Count > 0)
@@ -178,8 +194,10 @@ namespace TreeLogicN
                     {
                         Paquete.Add(myPath);
                     }
-                    //la logica falla para arboles de sintaxis porque el algoritmo fue hecho para circuitos explorados por explorer13, por eso falla cuando entra
-                    // un path que es un path incompleto, la raiz, sin las hojas. todos los paths deberian llegar hasta el final, hasta la hoja. Por eso para los Alias no falla, cada Alias es unico
+                    // la logica falla para arboles de sintaxis porque el algoritmo fue hecho para
+                    // circuitos explorados por explorer13, por eso falla cuando entra
+                    // un path que es un path incompleto, la raiz, sin las hojas. todos los paths deberian llegar
+                    // hasta el final, hasta la hoja. Por eso para los Alias no falla, cada Alias es unico
                     // osea llega hasta un hoja
                 }
 
@@ -201,11 +219,11 @@ namespace TreeLogicN
                 List<Path> Paquete = new List<Path>();
                 string Silaba = colPaths[0].Silaba[0];
 
-                foreach (var myPath in colPaths) //fix them first
+                foreach (var myPath in colPaths) // fix them first
                 {
                     if (myPath.Silaba.Count == 0)
                     {
-                        myPath.Silaba.Add("RedudantRootNode"); //add a Special Node to detect redundant OL
+                        myPath.Silaba.Add("RedudantRootNode"); // add a Special Node to detect redundant OL
                     }
                 }
                 foreach (var myPath in colPaths)
@@ -214,8 +232,11 @@ namespace TreeLogicN
                     {
                         Paquete.Add(myPath);
                     }
-                    //la logica falla para arboles de sintaxis porque el algoritmo fue hecho para circuitos explorados por explorer13, por eso falla cuando entra
-                    // un path que es un path incompleto, la raiz, sin las hojas. todos los paths deberian llegar hasta el final, hasta la hoja. Por eso para los Alias no falla, cada Alias es unico
+                    // some Graph logic going on here...
+                    // la logica falla para arboles de sintaxis porque el algoritmo fue hecho
+                    // para circuitos explorados por explorer13, por eso falla cuando entra
+                    // un path que es un path incompleto, la raiz, sin las hojas. todos los paths deberian llegar
+                    // hasta el final, hasta la hoja. Por eso para los Alias no falla, cada Alias es unico
                     // osea llega hasta un hoja
                 }
                 foreach (var myPath in Paquete)
@@ -630,11 +651,9 @@ namespace TreeLogicN
 
             return FinalTree;
         }
-        public static Task<Node> createJSONTreeAsync(string FirstName, List<string> myLines, Char Separator, bool Simplify, string Separator2 = "")
-        {
-            return Task.FromResult(createJSONTree(FirstName, myLines, Separator, Simplify, Separator2));
-        }
+        
         #region Select Tree Functions
+        
         public static TreeNode ReturnChecked(TreeNode OriginalTreeNode)
         {
             TreeNode FoundTreeNode = new TreeNode(); //Asumo que solo hay un check! solo devolvera el ultimo que encuentre
@@ -734,6 +753,24 @@ namespace TreeLogicN
                 return myLastGeneration;
             }
         }
+        #endregion
+
+        #region Async Versions
+
+        /// <summary>
+        /// Just a wrapper to create tasks
+        /// </summary>
+        /// <param name="FirstName"></param>
+        /// <param name="myLines"></param>
+        /// <param name="Separator"></param>
+        /// <param name="Simplify"></param>
+        /// <param name="Separator2"></param>
+        /// <returns></returns>
+        public static Task<Node> createJSONTreeAsync(string FirstName, List<string> myLines, Char Separator, bool Simplify, string Separator2 = "")
+        {
+            return Task.FromResult(createJSONTree(FirstName, myLines, Separator, Simplify, Separator2));
+        }
+
         #endregion
 
 
