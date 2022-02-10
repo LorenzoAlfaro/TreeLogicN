@@ -56,6 +56,16 @@ namespace TreeLogicN
         {
             Branches = new List<Node>();
         }
+        public Node(string name)
+        {
+            Trunk = name;
+            Branches = new List<Node>();
+        }
+        public Node(string name, List<Node> branches)
+        {
+            Trunk = name;
+            Branches = branches;
+        }
     }
 
     public class Path
@@ -141,23 +151,12 @@ namespace TreeLogicN
             List<Path> myPaths = new List<Path>();
             foreach (string Link in Chains)
             {
-                string[] prePath;
-                if (Separator2 == "")
-                {
-                    prePath = Link.Split(separator);
-                }
-                else
-                {
-                    prePath = Link.Split(new string[] { Separator2 }, StringSplitOptions.None);
-                }
+                string [] prePath = Separator2 == "" ? Link.Split(separator): Link.Split(new string[] { Separator2 }, StringSplitOptions.None);               
 
                 List<string> Silabas = new List<string>();
-
-                if (TreeName != "") //if empty dont add father Node
-                {
-                    Silabas.Add(TreeName); //Optional, some tabs include "sub Interfaces"
-                }
-
+                // if empty dont add father Node
+                if (TreeName != "") Silabas.Add(TreeName); // Optional, some tabs include "sub Interfaces" 
+              
                 foreach (var item in prePath)
                 {
                     Silabas.Add(item);
@@ -181,6 +180,12 @@ namespace TreeLogicN
         }
         private static List<Path> Packager3(List<Path> colPaths)
         {
+            // some Graph logic going on here...
+            // la logica falla para arboles de sintaxis porque el algoritmo fue hecho
+            // para circuitos explorados por explorer13, por eso falla cuando entra
+            // un path que es un path incompleto, la raiz, sin las hojas. todos los paths deberian llegar
+            // hasta el final, hasta la hoja. Por eso para los Alias no falla, cada Alias es unico
+            // osea llega hasta un hoja
             if (colPaths.Count > 0)
             {
                 List<Path> Paquete = new List<Path>();
@@ -199,12 +204,6 @@ namespace TreeLogicN
                     {
                         Paquete.Add(myPath);
                     }
-                    // some Graph logic going on here...
-                    // la logica falla para arboles de sintaxis porque el algoritmo fue hecho
-                    // para circuitos explorados por explorer13, por eso falla cuando entra
-                    // un path que es un path incompleto, la raiz, sin las hojas. todos los paths deberian llegar
-                    // hasta el final, hasta la hoja. Por eso para los Alias no falla, cada Alias es unico
-                    // osea llega hasta un hoja
                 }
                 foreach (var myPath in Paquete)
                 {
@@ -217,28 +216,17 @@ namespace TreeLogicN
         }
         private static Node CreateTree(List<Path> colPaths)
         {
-            List<Path> LocalCopy = new List<Path>();
-            List<Path> TrimCollection;
-            List<Node> Children = new List<Node>();
-            //Node FinalTree = new Node();
-            LocalCopy.AddRange(colPaths); //this should copy and not modify the original colPaths, but it looks like this does not works as expeted
-            Node Father = new Node
-            {
-                Trunk = LocalCopy[0].Silaba[0]
-            };
+            // this should copy and not modify the original colPaths, but it looks like this does not works as expeted
+            List<Path> LocalCopy = new List<Path>(colPaths); // clone
+            Node Father = new Node(LocalCopy[0].Silaba[0]);                        
             if (LocalCopy.Count > 0 & LocalCopy[0].Silaba.Count > 1)
             {
-                TrimCollection = RemoveFirst(LocalCopy);
-                Node Intermedio;
+                List<Path> TrimCollection = RemoveFirst(LocalCopy);               
                 do
-                {
-                    List<Path> Package = Packager3(TrimCollection);  //testing v2, to see for DRAM_TEST case;                    
-                    Intermedio = CreateTree(Package);
-                    Children.Add(Intermedio);
+                {                                                         
+                    Father.Branches.Add(CreateTree(Packager3(TrimCollection)));
                 } while (TrimCollection.Count > 0);
             }
-            //Father.Branches.AddRange(Children);
-            Father.Branches = Children;
             return Father;
         }
         private static Node SimplifyTree2(Node Original, Char WormSeparator, string WormSeparator2 = "")
@@ -257,58 +245,21 @@ namespace TreeLogicN
                         }
                     }
                 }
-            }
-            Node FinalNode = new Node
-            {
-                Trunk = Clone.Trunk,
-                Branches = middleBag
-            };
-            return FinalNode;
+            }            
+            return new Node(Clone.Trunk, middleBag);
         }
         private static Node Worm(Node Original, string ParentName, char WormSeparator, string WormSeparator2 = "")
-        {
-            string LocalName;
-            if (ParentName == "")
-            {
-                LocalName = Original.Trunk;
-            }
-            else
-            {
-                if (Original.Trunk == ParentName)
-                {
-                    LocalName = Original.Trunk;
-                }
-                else
-                {
-                    if (WormSeparator2 == "")
-                    {
-                        LocalName = ParentName + WormSeparator + Original.Trunk;   /// Depends, of Alias or PSDF, must change!!!
-                    }
-                    else
-                    {
-                        LocalName = ParentName + WormSeparator2 + Original.Trunk;   /// Depends, of Alias or PSDF, must change!!!
-                    }
-                }
-            }
-            if (Original.Branches.Count == 1)
-            {
-                Node Step = new Node();
-                Step = Worm(Original.Branches[0], LocalName, WormSeparator, WormSeparator2);
-                return Step;
-            }
-            else
-            {
-                Node Clone = new Node
-                {
-                    Trunk = LocalName,
-                    Branches = Original.Branches
-                };
-                return Clone;
-            }
+        {            
+            string Name1 = ParentName + WormSeparator + Original.Trunk;
+            string Name2 = ParentName + WormSeparator2 + Original.Trunk;            
+            string LocalName = ParentName == "" || Original.Trunk == ParentName ? Original.Trunk: WormSeparator2 == "" ? Name1 : Name2;
+
+            if (Original.Branches.Count == 1) return Worm(Original.Branches[0], LocalName, WormSeparator, WormSeparator2);
+           
+            return new Node(LocalName, Original.Branches);            
         }      
         public static TreeNode TranslateTree(Node AliasTree)
         {
-            //parentNode.Text = AliasTree.Trunk;
             TreeNode parentNode = new TreeNode(AliasTree.Trunk);
             List<TreeNode> middleNode = new List<TreeNode>();
             if (AliasTree.Branches.Count != 0)
@@ -318,6 +269,7 @@ namespace TreeLogicN
                     middleNode.Add(TranslateTree(myBranch));
                 }
             }
+
             foreach (TreeNode myNode in middleNode)
             {
                 parentNode.Nodes.Add(myNode);
@@ -325,82 +277,32 @@ namespace TreeLogicN
             return parentNode;
         }
         #endregion            
-
-        public static TreeNode LoadTreeView7(string FirstName, List<string> myLines, Char Separator, bool Simplify, string Separator2 = "")
+        public static Node createJSONTree(string FirstName, List<string> myLines, Char Separator, bool Simplify, string Separator2 = "")
         {
-
-            TreeNode FinalTree = new TreeNode(FirstName);
             List<List<string>> myFamilies = PrePackager(myLines, Separator, Separator2);
-
             if (myFamilies.Count > 1)
             {
+                Node FinalTree = new Node(FirstName);
                 foreach (List<string> subFamily in myFamilies)
                 {
-                    TreeNode SubTree = LoadGenericTree(subFamily, "", Simplify, Separator, Separator2); //Comment                        
-                    FinalTree.Nodes.Add(SubTree);
+                    Node SubTree = LoadGenericTree2(subFamily, "", Simplify, Separator, Separator2);
+                    FinalTree.Branches.Add(SubTree);
                 }
+                return FinalTree;
             }
-            else
-            {
-                FinalTree = LoadGenericTree(myLines, "", Simplify, Separator, Separator2); //Comment
-            }
-
-            return FinalTree;
-        }
-        private static TreeNode LoadGenericTree(List<string> Paths, string TreeName, bool Simplify, char separator, string Separator2 = "")
-        {
-            List<Path> myPathcol = CreatePathCollection2(Paths, separator, TreeName, Separator2);
-            Node Tree;
-            Node SimpleTree;
-            TreeNode FinalTree = new TreeNode();
-
-            if (Paths.Count != 0)
-            {
-                Tree = CreateTree(myPathcol); // Create Extendend uncompressed tree            
-                if (Simplify)
-                {
-                    SimpleTree = SimplifyTree2(Tree, separator, Separator2); // Compressed Tree
-                }
-                else
-                {
-                    SimpleTree = Tree;
-                }
-                FinalTree = TranslateTree(SimpleTree);
-            }
-            else
-            {
-                FinalTree.Text = "Empty Interface";
-            }
-            return FinalTree;
+            return LoadGenericTree2(myLines, "", Simplify, Separator, Separator2);
         }
         private static Node LoadGenericTree2(List<string> Paths, string TreeName, bool Simplify, char separator, string Separator2 = "")
         {
-            List<Path> myPathcol = CreatePathCollection2(Paths, separator, TreeName, Separator2);
-            Node Tree;
-            Node SimpleTree;
-            Node FinalTree = new Node();
-
             if (Paths.Count != 0)
             {
-                Tree = CreateTree(myPathcol); //Create Extendend uncompressed tree            
-                if (Simplify)
-                {
-                    SimpleTree = SimplifyTree2(Tree, separator, Separator2); //Compressed Tree
-                }
-                else
-                {
-                    SimpleTree = Tree;
-                }
-                FinalTree = SimpleTree; //Translate the Node into a TreeNode for TreeView
-            }
-            else
-            {
-                FinalTree.Trunk = "EmptyTrunk";
-            }
-            return FinalTree;
+                Node Tree = CreateTree(CreatePathCollection2(Paths, separator, TreeName, Separator2)); // Create Extendend uncompressed tree            
+                if (Simplify) return SimplifyTree2(Tree, separator, Separator2); // Compressed Tree             
+                return Tree;
+            }  
+            return new Node("Empty Trunk");
         }
-        
-        
+                
         private static List<List<string>> PrePackager(List<string> unfilteredPaths, char Separator, string Separator2 = "")
         {
             //pre-grouping the strings into sub-groups to create sub tree
@@ -469,28 +371,7 @@ namespace TreeLogicN
             completeChain.AddRange(middleChain);
             return completeChain;
         }
-        public static Node createJSONTree(string FirstName, List<string> myLines, Char Separator, bool Simplify, string Separator2 = "")
-        {
-            Node FinalTree = new Node();
-            FinalTree.Trunk = FirstName;
-
-            List<List<string>> myFamilies = PrePackager(myLines, Separator, Separator2);
-
-            if (myFamilies.Count > 1)
-            {
-                foreach (List<string> subFamily in myFamilies)
-                {
-                    Node SubTree = LoadGenericTree2(subFamily, "", Simplify, Separator, Separator2); //Comment                        
-                    FinalTree.Branches.Add(SubTree);
-                }
-            }
-            else
-            {
-                FinalTree = LoadGenericTree2(myLines, "", Simplify, Separator, Separator2); //Comment
-            }
-
-            return FinalTree;
-        }
+        
         
         #region Select Tree Functions
         
@@ -612,7 +493,7 @@ namespace TreeLogicN
         }
 
         #endregion
-        private static void CheckAllChildNodes(TreeNode treeNode, bool nodeChecked) //taken from Platform Maker
+        private static void CheckAllChildNodes(TreeNode treeNode, bool nodeChecked) // taken from Platform Maker
         {
             foreach (TreeNode node in treeNode.Nodes)
             {
@@ -624,7 +505,7 @@ namespace TreeLogicN
                 }
             }
         }
-        private static List<TreeNode> ReturnChecked2(TreeNode ParentNode) //taken from Platform Maker
+        private static List<TreeNode> ReturnChecked2(TreeNode ParentNode) // taken from Platform Maker
         {
             List<TreeNode> LittleBag = new List<TreeNode>();
             List<TreeNode> MiddleBag = new List<TreeNode>();
