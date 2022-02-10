@@ -326,74 +326,6 @@ namespace TreeLogicN
         }
         #endregion            
 
-        public static List<TreeNode> LoadTreeView6(DeviceInterface myInterface, Char Separator, bool Simplify, string Separator2 = "")
-        {
-            TreeView myTreeView = new TreeView();
-            TreeNode FinalTree = new TreeNode();
-            List<TreeNode> NodesList = new List<TreeNode>();
-
-            if (Separator == '-')
-            {
-                List<string> Aliases = myInterface.paths;
-                List<List<string>> myFamilies = PrePackager(Aliases, Separator, Separator2);
-
-                if (myFamilies.Count > 1)
-                {
-                    foreach (List<string> subFamily in myFamilies)
-                    {
-                        TreeNode SubTree = LoadGenericTree(subFamily, "", Simplify, Separator, Separator2); //Comment                        
-                        FinalTree.Nodes.Add(SubTree);
-                    }
-                }
-                else
-                {
-                    FinalTree = LoadGenericTree(Aliases, "", Simplify, Separator, Separator2); //Comment
-                }
-
-            }
-            else if (Separator == '_')
-            {
-                List<string> objList = myInterface.paths;
-                List<List<string>> myFamilies = PrePackager(objList, Separator, Separator2);
-
-                if (myFamilies.Count > 1)
-                {
-                    foreach (List<string> subFamily in myFamilies)
-                    {
-                        TreeNode SubTree = LoadGenericTree(subFamily, "", Simplify, Separator, Separator2); //Comment                        
-                        FinalTree.Nodes.Add(SubTree);
-                    }
-                }
-                else
-                {
-                    FinalTree = LoadGenericTree(objList, "", Simplify, Separator, Separator2); //Comment
-                }
-            }
-            else if (Separator == '/')
-            {
-                List<string> Rules = myInterface.paths;
-                FinalTree = LoadGenericTree(Rules, "", Simplify, Separator, Separator2); //No need to add a Father Node
-            }
-            
-            if (FinalTree.Nodes.Count > 1 & FinalTree.Text == "")
-            {
-                foreach (TreeNode myTree in FinalTree.Nodes)
-                {
-                    myTreeView.Nodes.Add(myTree);
-                }
-            }
-            else
-            {
-                myTreeView.Nodes.Add(FinalTree);
-            }
-
-            foreach (TreeNode node in myTreeView.Nodes)
-            {
-                NodesList.Add(node);
-            }
-
-            return NodesList;
-        }
         public static TreeNode LoadTreeView7(string FirstName, List<string> myLines, Char Separator, bool Simplify, string Separator2 = "")
         {
 
@@ -433,7 +365,7 @@ namespace TreeLogicN
                 {
                     SimpleTree = Tree;
                 }
-                FinalTree = TranslateTree(SimpleTree); //Translate the Node into a TreeNode for TreeView
+                FinalTree = TranslateTree(SimpleTree);
             }
             else
             {
@@ -443,8 +375,7 @@ namespace TreeLogicN
         }
         private static Node LoadGenericTree2(List<string> Paths, string TreeName, bool Simplify, char separator, string Separator2 = "")
         {
-            List<Path> myPathcol = CreatePathCollection2(Paths, separator, TreeName, Separator2); //Create collection of paths
-
+            List<Path> myPathcol = CreatePathCollection2(Paths, separator, TreeName, Separator2);
             Node Tree;
             Node SimpleTree;
             Node FinalTree = new Node();
@@ -460,7 +391,6 @@ namespace TreeLogicN
                 {
                     SimpleTree = Tree;
                 }
-
                 FinalTree = SimpleTree; //Translate the Node into a TreeNode for TreeView
             }
             else
@@ -469,6 +399,8 @@ namespace TreeLogicN
             }
             return FinalTree;
         }
+        
+        
         private static List<List<string>> PrePackager(List<string> unfilteredPaths, char Separator, string Separator2 = "")
         {
             //pre-grouping the strings into sub-groups to create sub tree
@@ -680,8 +612,6 @@ namespace TreeLogicN
         }
 
         #endregion
-
-
         private static void CheckAllChildNodes(TreeNode treeNode, bool nodeChecked) //taken from Platform Maker
         {
             foreach (TreeNode node in treeNode.Nodes)
@@ -718,5 +648,4 @@ namespace TreeLogicN
             return LargeBag;
         }
     }
-
 }
