@@ -179,39 +179,6 @@ namespace TreeLogicN
             }
             return myPaths;
         }
-        
-        // Why are there two versions of Packager?
-        private static List<Path> Packager(List<Path> colPaths)
-        {
-            if (colPaths.Count > 0)
-            {
-                List<Path> Paquete = new List<Path>();
-                string Silaba = colPaths[0].Silaba[0];
-
-                foreach (var myPath in colPaths)
-                {
-                    if (Silaba == myPath.Silaba[0])
-                    {
-                        Paquete.Add(myPath);
-                    }
-                    // la logica falla para arboles de sintaxis porque el algoritmo fue hecho para
-                    // circuitos explorados por explorer13, por eso falla cuando entra
-                    // un path que es un path incompleto, la raiz, sin las hojas. todos los paths deberian llegar
-                    // hasta el final, hasta la hoja. Por eso para los Alias no falla, cada Alias es unico
-                    // osea llega hasta un hoja
-                }
-
-                foreach (var myPath in Paquete)
-                {
-                    colPaths.Remove(myPath);
-                }
-                return Paquete;
-            }
-            else
-            {
-                return null;
-            }
-        }
         private static List<Path> Packager3(List<Path> colPaths)
         {
             if (colPaths.Count > 0)
@@ -348,37 +315,7 @@ namespace TreeLogicN
                 return Clone;
             }
         }
-        private static TreeNode CreateTreeView(List<Path> colPaths)
-        {
-            List<Path> LocalCopy = new List<Path>();
-            List<Path> TrimCollection = new List<Path>();
-            List<TreeNode> Children = new List<TreeNode>();
-            TreeNode FinalTree = new TreeNode();
-            LocalCopy.AddRange(colPaths); //this should copy and not modify the original colPaths, but it looks like this does not works as expeted
-            TreeNode Father = new TreeNode
-            {
-                //Father.Name = LocalCopy[0].Silaba[0];
-                Text = LocalCopy[0].Silaba[0]
-            };
-            if (LocalCopy.Count > 0 & LocalCopy[0].Silaba.Count > 1)
-            {
-                TrimCollection = RemoveFirst(LocalCopy);
-                TreeNode Intermedio = new TreeNode();
-                do
-                {
-                    List<Path> Package = new List<Path>();
-                    Package = Packager(TrimCollection);
-                    Intermedio = CreateTreeView(Package);
-                    Children.Add(Intermedio);
-                } while (TrimCollection.Count > 0);
-            }
-            //Father.Branches.AddRange(Children);
-            foreach (TreeNode myNode in Children)
-            {
-                Father.Nodes.Add(myNode);
-            }
-            return Father;
-        }
+        
         public static TreeNode TranslateTree(Node AliasTree, TreeNode parentNode)
         {
 
