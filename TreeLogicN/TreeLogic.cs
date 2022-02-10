@@ -212,10 +212,8 @@ namespace TreeLogicN
                 }
                 return Paquete;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
         private static Node CreateTree(List<Path> colPaths)
         {
@@ -257,11 +255,6 @@ namespace TreeLogicN
                         {
                             middleBag.Add(SimplifyTree2(Son, WormSeparator, WormSeparator2));
                         }
-                        else
-                        {
-
-                        }
-
                     }
                 }
             }
@@ -275,7 +268,6 @@ namespace TreeLogicN
         private static Node Worm(Node Original, string ParentName, char WormSeparator, string WormSeparator2 = "")
         {
             string LocalName;
-
             if (ParentName == "")
             {
                 LocalName = Original.Trunk;
@@ -296,7 +288,6 @@ namespace TreeLogicN
                     {
                         LocalName = ParentName + WormSeparator2 + Original.Trunk;   /// Depends, of Alias or PSDF, must change!!!
                     }
-
                 }
             }
             if (Original.Branches.Count == 1)
@@ -314,34 +305,23 @@ namespace TreeLogicN
                 };
                 return Clone;
             }
-        }
-        
-        public static TreeNode TranslateTree(Node AliasTree, TreeNode parentNode)
+        }      
+        public static TreeNode TranslateTree(Node AliasTree)
         {
-
             //parentNode.Text = AliasTree.Trunk;
-
-            parentNode = new TreeNode(AliasTree.Trunk);
-
+            TreeNode parentNode = new TreeNode(AliasTree.Trunk);
             List<TreeNode> middleNode = new List<TreeNode>();
-
             if (AliasTree.Branches.Count != 0)
             {
                 foreach (Node myBranch in AliasTree.Branches)
                 {
-                    TreeNode emptyNode = new TreeNode();
-                    middleNode.Add(TranslateTree(myBranch, emptyNode));
+                    middleNode.Add(TranslateTree(myBranch));
                 }
             }
-            else
-            {
-            }
-
             foreach (TreeNode myNode in middleNode)
             {
                 parentNode.Nodes.Add(myNode);
             }
-
             return parentNode;
         }
         #endregion            
@@ -394,13 +374,7 @@ namespace TreeLogicN
                 List<string> Rules = myInterface.paths;
                 FinalTree = LoadGenericTree(Rules, "", Simplify, Separator, Separator2); //No need to add a Father Node
             }
-            else
-            {
-
-            }
-
-
-
+            
             if (FinalTree.Nodes.Count > 1 & FinalTree.Text == "")
             {
                 foreach (TreeNode myTree in FinalTree.Nodes)
@@ -443,26 +417,23 @@ namespace TreeLogicN
         }
         private static TreeNode LoadGenericTree(List<string> Paths, string TreeName, bool Simplify, char separator, string Separator2 = "")
         {
-            List<Path> myPathcol = CreatePathCollection2(Paths, separator, TreeName, Separator2); //Create collection of paths
-
+            List<Path> myPathcol = CreatePathCollection2(Paths, separator, TreeName, Separator2);
             Node Tree;
             Node SimpleTree;
             TreeNode FinalTree = new TreeNode();
 
             if (Paths.Count != 0)
             {
-                Tree = CreateTree(myPathcol); //Create Extendend uncompressed tree            
+                Tree = CreateTree(myPathcol); // Create Extendend uncompressed tree            
                 if (Simplify)
                 {
-                    SimpleTree = SimplifyTree2(Tree, separator, Separator2); //Compressed Tree
+                    SimpleTree = SimplifyTree2(Tree, separator, Separator2); // Compressed Tree
                 }
                 else
                 {
                     SimpleTree = Tree;
                 }
-
-                TreeNode AliasTreeNode = new TreeNode(); //Create emptyTree for inputparameter
-                FinalTree = TranslateTree(SimpleTree, AliasTreeNode); //Translate the Node into a TreeNode for TreeView
+                FinalTree = TranslateTree(SimpleTree); //Translate the Node into a TreeNode for TreeView
             }
             else
             {
