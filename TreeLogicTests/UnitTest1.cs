@@ -48,5 +48,35 @@ namespace TreeLogicTests
 
             Assert.IsTrue(nody.Branches[1].Trunk == trunk1, "Trunk name expected {0} : actual name {1}", trunk, nody.Trunk);
         }
+
+
+        [Test]
+        public void TestTrie()
+        {
+            List<List<string>> paths = new List<List<string>>();
+
+            List<string> p = new List<string>();
+            p.Add("HOLA");
+            p.Add("Amigo");
+            p.Add("HOLA");
+
+            List<string> p1 = new List<string>();
+            p1.Add("HOLA");
+            p1.Add("Amigo");
+            p1.Add("saludos");
+
+            List<string> p2 = new List<string>();
+            p2.Add("HOLA");
+            p2.Add("Tonto");
+            p2.Add("HEHE");
+
+            paths.Add(p);
+            paths.Add(p1);
+            paths.Add(p2);
+
+            TrieNode trie = new TrieNode(paths);
+
+            Assert.IsTrue(trie.children["HOLA"].children.Count == 2);
+        }
     }
 }

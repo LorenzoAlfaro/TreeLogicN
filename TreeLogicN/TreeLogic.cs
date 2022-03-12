@@ -44,7 +44,40 @@ namespace TreeLogicN
         
         
     }
-    
+
+    public class TrieNode
+    {
+        public Dictionary<string, TrieNode> children = new Dictionary<string, TrieNode>();
+        public List<string> word = null;
+        public TrieNode() { }
+
+        public TrieNode(List<List<string>> words)
+        {
+            TrieNode root = new TrieNode();
+            foreach (List<string> word in words)
+            {
+                TrieNode node = root;
+
+                foreach (string letter in word)
+                {
+                    if (node.children.ContainsKey(letter))
+                    {
+                        node = node.children[letter];
+                    }
+                    else
+                    {
+                        TrieNode newNode = new TrieNode();
+                        node.children[letter] = newNode;
+                        node = newNode;
+                    }
+                }
+                node.word = word;  // store words in Trie
+            }
+
+            this.children = root.children;
+        }
+    }
+
     /// <summary>
     /// Base class for the tree structure
     /// </summary>
